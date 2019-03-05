@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">CS492Final</string>
+    <string name="pref_user_key">PrefUserKey</string>
+    <string name="pref_user_title">Temporary</string>
 </resources>
