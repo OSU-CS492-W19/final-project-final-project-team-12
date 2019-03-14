@@ -13,20 +13,31 @@ import java.util.ArrayList;
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.RecyclerViewHolder>{
 
     private ArrayList<String> mChatList;
+    private OnTempItemClickListener mOnTempItemClickListener;
 
-    public RecyclerViewAdapter(){
+    public interface OnTempItemClickListener{
+        void onTempItemClick(String s); //Change string s to our data type.
+    }
+
+    public RecyclerViewAdapter(OnTempItemClickListener clickListener){
+        mOnTempItemClickListener = clickListener;
         mChatList = new ArrayList<String>();
     }
 
     public void addChat(String message){
         //Puts the most recent message at the bottom of the displayed list
-        mChatList.add(0,message);
+        mChatList.add(message);
         notifyDataSetChanged();
     }
 
     @Override
     public int getItemCount(){
-        return mChatList.size();
+        if(mChatList != null) {
+            return mChatList.size();
+        }
+        else{
+            return 0;
+        }
     }
 
     @NonNull
@@ -43,16 +54,23 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         recyclerViewHolder.bind(chat);
     }
 
-    class RecyclerViewHolder extends RecyclerView.ViewHolder{
+    class RecyclerViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
         private TextView mChatTV;
 
         public RecyclerViewHolder(View itemView) {
             super(itemView);
             mChatTV = itemView.findViewById(R.id.tv_rvitem);
+            itemView.setOnClickListener(this);
         }
 
         public void bind(String chat){
             mChatTV.setText(chat);
+        }
+
+        @Override
+        public void onClick(View v) {
+            String s = mChatList.get(getAdapterPosition());
+            mOnTempItemClickListener.onTempItemClick(s);
         }
     }
 }

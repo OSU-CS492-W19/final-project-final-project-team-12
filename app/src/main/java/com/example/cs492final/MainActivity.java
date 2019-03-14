@@ -6,13 +6,14 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements RecyclerViewAdapter.OnTempItemClickListener {
 
     private RecyclerView mChatRV;
     private EditText mMessageET;
@@ -26,7 +27,7 @@ public class MainActivity extends AppCompatActivity {
         mChatRV = findViewById(R.id.rv_chat_list);
         mMessageET = findViewById(R.id.et_message);
 
-        mRecyclerViewAdapter = new RecyclerViewAdapter();
+        mRecyclerViewAdapter = new RecyclerViewAdapter(this);
 
         mChatRV.setLayoutManager(new LinearLayoutManager(this));
         mChatRV.setHasFixedSize(true);
@@ -50,6 +51,13 @@ public class MainActivity extends AppCompatActivity {
         });
         //Get information from the Slack Server
 
+    }
+
+    @Override
+    public void onTempItemClick(String s){ //Update parameter based off data type we clicked on
+        Intent intent = new Intent(this, ItemDetailActivity.class);
+        intent.putExtra("TEMP", s);
+        startActivity(intent);
     }
 
     @Override
