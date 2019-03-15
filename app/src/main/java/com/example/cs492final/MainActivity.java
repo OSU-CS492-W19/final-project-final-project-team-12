@@ -1,6 +1,7 @@
 package com.example.cs492final;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -13,7 +14,20 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
-public class MainActivity extends AppCompatActivity implements RecyclerViewAdapter.OnTempItemClickListener {
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
+import java.util.Map;
+
+public class MainActivity extends AppCompatActivity
+        implements RecyclerViewAdapter.OnTempItemClickListener {
+
+    private static final String TAG = MainActivity.class.getSimpleName();
 
     private RecyclerView mChatRV;
     private EditText mMessageET;
@@ -46,11 +60,18 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewAdapt
                     //Update to send to the slack server.
                     mRecyclerViewAdapter.addChat(messageText);
                     mMessageET.setText("");
+                    doAlphaVantageSearch(messageText);
                 }
             }
         });
         //Get information from the Slack Server
 
+    }
+
+    private void doAlphaVantageSearch(String query) {
+        String url = AlphaVantageUtils.buildAlphaVantageURL(query);
+        Log.d(TAG, "querying search URL: " + url);
+        new GitHubSearchTask().execute(url);
     }
 
     @Override
@@ -75,6 +96,61 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewAdapt
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
+        }
+    }
+
+
+    class GitHubSearchTask extends AsyncTask<String, Void, String> {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            Log.d(TAG, "onPreExecute");
+            //mLoadingPB.setVisibility(View.VISIBLE);
+        }
+
+        @Override
+        protected String doInBackground(String... urls) {
+            Log.d(TAG,"in doInBackground");
+            String url = urls[0];
+            String results = null;
+            try {
+                results = NetworkUtils.doHTTPGet(url);
+                Log.d(TAG, "after GET " + results);
+            } catch (IOException e) {
+                Log.d(TAG, "error");
+                e.printStackTrace();
+            }
+            return results;
+        }
+
+
+        @Override
+        protected void onPostExecute(String s) {
+            Log.d(TAG, "onPostExecute");
+            if (s != null) {
+
+                /*DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                Date date = sdf.parse(sdf.format(new Date()));
+
+                Calendar cal = Calendar.getInstance();
+                cal.set(Calendar.HOUR_OF_DAY, 9);
+                cal.set(Calendar.MINUTE, 30);
+                cal.set(Calendar.SECOND, 00);
+
+                date = cal.getTime();*/
+
+                //mLoadingErrorTV.setVisibility(View.INVISIBLE);
+                //mSearchResultsRV.setVisibility(View.VISIBLE);
+                Map<String, AlphaVantageUtils.AlphaVantageRepo> repos = AlphaVantageUtils.parseGitHubSearchResults(s);
+                mRecyclerViewAdapter.updateSearchResults(repos);
+                Log.d(TAG,"repos dt_text: " + repos.get("2019-03-14 15:30:00").open);
+                Log.d(TAG, "after parsing");
+            } else {
+                //mLoadingErrorTV.setVisibility(View.VISIBLE);
+                //mSearchResultsRV.setVisibility(View.INVISIBLE);
+            }
+            //mLoadingPB.setVisibility(View.INVISIBLE);
         }
     }
 }

@@ -9,11 +9,20 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.RecyclerViewHolder>{
 
+    private Map<String, AlphaVantageUtils.AlphaVantageRepo> mRepos;
+
     private ArrayList<String> mChatList;
     private OnTempItemClickListener mOnTempItemClickListener;
+
+    public void updateSearchResults(Map<String, AlphaVantageUtils.AlphaVantageRepo> repos) {
+        mRepos = repos;
+        notifyDataSetChanged();
+    }
+
 
     public interface OnTempItemClickListener{
         void onTempItemClick(String s); //Change string s to our data type.
