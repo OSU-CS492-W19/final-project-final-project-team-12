@@ -13,6 +13,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import java.io.IOException;
 import java.text.DateFormat;
@@ -33,6 +35,9 @@ public class MainActivity extends AppCompatActivity
     private EditText mMessageET;
     private RecyclerViewAdapter mRecyclerViewAdapter;
 
+    private ProgressBar mLoadingIndicatorPB;
+    private TextView mLoadingErrorMessageTV;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,6 +53,9 @@ public class MainActivity extends AppCompatActivity
 
         mChatRV.setAdapter(mRecyclerViewAdapter);
 
+        mLoadingIndicatorPB = findViewById(R.id.pb_loading_indicator);
+        mLoadingErrorMessageTV = findViewById(R.id.tv_loading_error_message);
+
         Button mSendB = findViewById(R.id.b_send);
         //Create an onclicklistener to listen for when the button is pressed.
         mSendB.setOnClickListener(new View.OnClickListener() {
@@ -58,26 +66,24 @@ public class MainActivity extends AppCompatActivity
                 //Check to see if there is anything in the message box.
                 if (!TextUtils.isEmpty(messageText)) {
                     //Update to send to the slack server.
-                    mRecyclerViewAdapter.addChat(messageText);
+                    //mRecyclerViewAdapter.addChat(messageText);
                     mMessageET.setText("");
-                    doAlphaVantageSearch(messageText);
+                    doAlphaVantageSearch(messageText); //Get information from the API
                 }
             }
         });
-        //Get information from the Slack Server
-
     }
 
     private void doAlphaVantageSearch(String query) {
         String url = AlphaVantageUtils.buildAlphaVantageURL(query);
         Log.d(TAG, "querying search URL: " + url);
-        new GitHubSearchTask().execute(url);
+        new GitHubSearchTask().execute(url);   //uses Async - will add ViewModel at some point
     }
 
     @Override
-    public void onTempItemClick(String s){ //Update parameter based off data type we clicked on
+    public void onTempItemClick(AlphaVantageUtils.AlphaVantageRepo repo){ //Update parameter based off data type we clicked on
         Intent intent = new Intent(this, ItemDetailActivity.class);
-        intent.putExtra("TEMP", s);
+        intent.putExtra(AlphaVantageUtils.EXTRA_ALPHA_VANTAGE_ITEM, repo);
         startActivity(intent);
     }
 
@@ -105,20 +111,20 @@ public class MainActivity extends AppCompatActivity
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            Log.d(TAG, "onPreExecute");
-            //mLoadingPB.setVisibility(View.VISIBLE);
+            //Log.d(TAG, "onPreExecute");
+            mLoadingIndicatorPB.setVisibility(View.VISIBLE);
         }
 
         @Override
         protected String doInBackground(String... urls) {
-            Log.d(TAG,"in doInBackground");
+            //Log.d(TAG,"in doInBackground");
             String url = urls[0];
             String results = null;
             try {
                 results = NetworkUtils.doHTTPGet(url);
-                Log.d(TAG, "after GET " + results);
+                //Log.d(TAG, "after GET " + results);
             } catch (IOException e) {
-                Log.d(TAG, "error");
+                //Log.d(TAG, "error");
                 e.printStackTrace();
             }
             return results;
@@ -129,28 +135,17 @@ public class MainActivity extends AppCompatActivity
         protected void onPostExecute(String s) {
             Log.d(TAG, "onPostExecute");
             if (s != null) {
-
-                /*DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                Date date = sdf.parse(sdf.format(new Date()));
-
-                Calendar cal = Calendar.getInstance();
-                cal.set(Calendar.HOUR_OF_DAY, 9);
-                cal.set(Calendar.MINUTE, 30);
-                cal.set(Calendar.SECOND, 00);
-
-                date = cal.getTime();*/
-
-                //mLoadingErrorTV.setVisibility(View.INVISIBLE);
-                //mSearchResultsRV.setVisibility(View.VISIBLE);
+                mLoadingErrorMessageTV.setVisibility(View.INVISIBLE);
                 Map<String, AlphaVantageUtils.AlphaVantageRepo> repos = AlphaVantageUtils.parseGitHubSearchResults(s);
+
+                //Log.d(TAG,"key is 2019-03-14 15:30:00  -  open value is : " + repos.get("2019-03-14 15:30:00").open);
+                //Log.d(TAG, "after parsing");
                 mRecyclerViewAdapter.updateSearchResults(repos);
-                Log.d(TAG,"repos dt_text: " + repos.get("2019-03-14 15:30:00").open);
-                Log.d(TAG, "after parsing");
             } else {
-                //mLoadingErrorTV.setVisibility(View.VISIBLE);
-                //mSearchResultsRV.setVisibility(View.INVISIBLE);
+                mLoadingErrorMessageTV.setVisibility(View.VISIBLE);
+                mChatRV.setVisibility(View.INVISIBLE);
             }
-            //mLoadingPB.setVisibility(View.INVISIBLE);
+            mLoadingIndicatorPB.setVisibility(View.INVISIBLE);
         }
     }
 }
