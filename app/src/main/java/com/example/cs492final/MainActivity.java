@@ -71,6 +71,7 @@ public class MainActivity extends AppCompatActivity
                 StockItemDB mItem = new StockItemDB();
                 //Get the string from the EditText box.
                 String messageText = mMessageET.getText().toString();
+                mItem.company_symbol = mMessageET.getText().toString().toUpperCase();
                 mStockItemViewModel.insertStockItem(mItem);
                 //Check to see if there is anything in the message box.
                 if (!TextUtils.isEmpty(messageText)) {
