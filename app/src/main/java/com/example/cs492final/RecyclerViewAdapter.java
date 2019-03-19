@@ -106,13 +106,62 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         return emptyRepo;
     }
 
+    public void assignDaysToGoBack (int i) {
+        if (i >= 0 && i < 7 ) {
+            mGoBackThisManyDays = 0;
+        }
+        else if (i >= 7 && i < 14) {
+            mGoBackThisManyDays = 1;
+        }
+        else if (i >= 14 && i < 21) {
+            mGoBackThisManyDays = 2;
+        }
+        else if (i >= 21 && i < 28) {
+            mGoBackThisManyDays = 3;
+        }
+        else if (i >= 28 && i < 35) {
+            mGoBackThisManyDays = 4;
+        }
+        else if (i >= 35 && i < 42) {
+            mGoBackThisManyDays = 5;
+        }
+        else if (i >= 42 && i < 49) {
+            mGoBackThisManyDays = 6;
+        }
+        else if (i >= 49 && i < 56) {
+            mGoBackThisManyDays = 7;
+        }
+        else if (i >= 56 && i < 63) {
+            mGoBackThisManyDays = 8;
+        }
+        else if (i >= 63 && i < 70) {
+            mGoBackThisManyDays = 9;
+        }
+        else if (i >= 70 && i < 77) {
+            mGoBackThisManyDays = 10;
+        }
+        else if (i >= 77 && i < 84) {
+            mGoBackThisManyDays = 11;
+        }
+        else if (i >= 84 && i < 91) {
+            mGoBackThisManyDays = 12;
+        }
+        else if (i >= 91 && i < 98) {
+            mGoBackThisManyDays = 13;
+        }
+        else {
+            mGoBackThisManyDays = 14;
+        }
+    }
+
     @Override
     public void onBindViewHolder(@NonNull RecyclerViewHolder recyclerViewHolder, int i){
         // There are 7 data points per day so every 7 data points, we have to go back a day.
         // This function is called for every data points so we have to keep track of days as a member of the Adapter class
-        if (i%7 == 0) {
-            mGoBackThisManyDays++;
-        }
+        assignDaysToGoBack(i);
+
+
+        Log.d(TAG, "i is " + i + "and go back this many days " + mGoBackThisManyDays);
 
         String key = getPositionKey(i);
         //Log.d(TAG, "after calling getPositionKey, key is " + key);

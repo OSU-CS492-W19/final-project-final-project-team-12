@@ -2,6 +2,7 @@ package com.example.cs492final;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.ViewModelProviders;
+import android.app.SearchManager;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
@@ -37,10 +38,12 @@ public class MainActivity extends AppCompatActivity
 
     private RecyclerView mChatRV;
     private EditText mMessageET;
+    private String mLatestSearch;
     private RecyclerViewAdapter mRecyclerViewAdapter;
 
     private ProgressBar mLoadingIndicatorPB;
     private TextView mLoadingErrorMessageTV;
+    private TextView mAPIErrorMessageTV;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +52,8 @@ public class MainActivity extends AppCompatActivity
 
         mChatRV = findViewById(R.id.rv_chat_list);
         mMessageET = findViewById(R.id.et_message);
+
+        mLatestSearch = "";
 
         mRecyclerViewAdapter = new RecyclerViewAdapter(this);
 
@@ -59,6 +64,7 @@ public class MainActivity extends AppCompatActivity
 
         mLoadingIndicatorPB = findViewById(R.id.pb_loading_indicator);
         mLoadingErrorMessageTV = findViewById(R.id.tv_loading_error_message);
+        mAPIErrorMessageTV = findViewById(R.id.tv_API_error_message);
 
         final StockItemViewModel mStockItemViewModel = ViewModelProviders.of(this).get(StockItemViewModel.class);
         LiveData<List<StockItemDB>> allItems = mStockItemViewModel.getAllStockItems();
@@ -77,6 +83,7 @@ public class MainActivity extends AppCompatActivity
                 if (!TextUtils.isEmpty(messageText)) {
                     //Update to send to the slack server.
                     //mRecyclerViewAdapter.addChat(messageText);
+                    mLatestSearch = mMessageET.getText().toString();
                     mMessageET.setText("");
                     doAlphaVantageSearch(messageText); //Get information from the API
                 }
@@ -110,6 +117,12 @@ public class MainActivity extends AppCompatActivity
                 Intent intent = new Intent(this, SettingsActivity.class);
                 startActivity(intent);
                 return true;
+            case R.id.action_search:
+                Log.d(TAG, "query is " + mLatestSearch);
+                Intent searchIntent = new Intent(Intent.ACTION_WEB_SEARCH);
+                searchIntent.putExtra(SearchManager.QUERY, mLatestSearch + " NASDAQ company list symbols");
+                startActivity(searchIntent);
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -127,14 +140,14 @@ public class MainActivity extends AppCompatActivity
 
         @Override
         protected String doInBackground(String... urls) {
-            //Log.d(TAG,"in doInBackground");
+            Log.d(TAG,"in doInBackground");
             String url = urls[0];
             String results = null;
             try {
                 results = NetworkUtils.doHTTPGet(url);
                 //Log.d(TAG, "after GET " + results);
             } catch (IOException e) {
-                //Log.d(TAG, "error");
+                Log.d(TAG, "error");
                 e.printStackTrace();
             }
             return results;
@@ -143,15 +156,20 @@ public class MainActivity extends AppCompatActivity
 
         @Override
         protected void onPostExecute(String s) {
-            Log.d(TAG, "onPostExecute");
-            if (s != null) {
+            Log.d(TAG, "onPostExecute s is " + s.contains("Error Message"));
+            if (s != null && s.contains("Error Message") == false) {
                 mLoadingErrorMessageTV.setVisibility(View.INVISIBLE);
                 Map<String, AlphaVantageUtils.AlphaVantageRepo> repos = AlphaVantageUtils.parseGitHubSearchResults(s);
 
                 //Log.d(TAG,"key is 2019-03-14 15:30:00  -  open value is : " + repos.get("2019-03-14 15:30:00").open);
                 //Log.d(TAG, "after parsing");
                 mRecyclerViewAdapter.updateSearchResults(repos);
-            } else {
+            }
+            else if (s.contains("Error Message") == true) {
+                mChatRV.setVisibility(View.INVISIBLE);
+                mAPIErrorMessageTV.setVisibility(View.VISIBLE);
+            }
+            else {
                 mLoadingErrorMessageTV.setVisibility(View.VISIBLE);
                 mChatRV.setVisibility(View.INVISIBLE);
             }
