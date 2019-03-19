@@ -1,6 +1,7 @@
 package com.example.cs492final;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -12,12 +13,30 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
-public class MainActivity extends AppCompatActivity implements RecyclerViewAdapter.OnTempItemClickListener {
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
+import java.util.Map;
+
+public class MainActivity extends AppCompatActivity
+        implements RecyclerViewAdapter.OnTempItemClickListener {
+
+    private static final String TAG = MainActivity.class.getSimpleName();
 
     private RecyclerView mChatRV;
     private EditText mMessageET;
     private RecyclerViewAdapter mRecyclerViewAdapter;
+
+    private ProgressBar mLoadingIndicatorPB;
+    private TextView mLoadingErrorMessageTV;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +53,9 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewAdapt
 
         mChatRV.setAdapter(mRecyclerViewAdapter);
 
+        mLoadingIndicatorPB = findViewById(R.id.pb_loading_indicator);
+        mLoadingErrorMessageTV = findViewById(R.id.tv_loading_error_message);
+
         Button mSendB = findViewById(R.id.b_send);
         //Create an onclicklistener to listen for when the button is pressed.
         mSendB.setOnClickListener(new View.OnClickListener() {
@@ -44,19 +66,24 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewAdapt
                 //Check to see if there is anything in the message box.
                 if (!TextUtils.isEmpty(messageText)) {
                     //Update to send to the slack server.
-                    mRecyclerViewAdapter.addChat(messageText);
+                    //mRecyclerViewAdapter.addChat(messageText);
                     mMessageET.setText("");
+                    doAlphaVantageSearch(messageText); //Get information from the API
                 }
             }
         });
-        //Get information from the Slack Server
+    }
 
+    private void doAlphaVantageSearch(String query) {
+        String url = AlphaVantageUtils.buildAlphaVantageURL(query);
+        Log.d(TAG, "querying search URL: " + url);
+        new GitHubSearchTask().execute(url);   //uses Async - will add ViewModel at some point
     }
 
     @Override
-    public void onTempItemClick(String s){ //Update parameter based off data type we clicked on
+    public void onTempItemClick(AlphaVantageUtils.AlphaVantageRepo repo){ //Update parameter based off data type we clicked on
         Intent intent = new Intent(this, ItemDetailActivity.class);
-        intent.putExtra("TEMP", s);
+        intent.putExtra(AlphaVantageUtils.EXTRA_ALPHA_VANTAGE_ITEM, repo);
         startActivity(intent);
     }
 
@@ -75,6 +102,50 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewAdapt
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
+        }
+    }
+
+
+    class GitHubSearchTask extends AsyncTask<String, Void, String> {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            //Log.d(TAG, "onPreExecute");
+            mLoadingIndicatorPB.setVisibility(View.VISIBLE);
+        }
+
+        @Override
+        protected String doInBackground(String... urls) {
+            //Log.d(TAG,"in doInBackground");
+            String url = urls[0];
+            String results = null;
+            try {
+                results = NetworkUtils.doHTTPGet(url);
+                //Log.d(TAG, "after GET " + results);
+            } catch (IOException e) {
+                //Log.d(TAG, "error");
+                e.printStackTrace();
+            }
+            return results;
+        }
+
+
+        @Override
+        protected void onPostExecute(String s) {
+            Log.d(TAG, "onPostExecute");
+            if (s != null) {
+                mLoadingErrorMessageTV.setVisibility(View.INVISIBLE);
+                Map<String, AlphaVantageUtils.AlphaVantageRepo> repos = AlphaVantageUtils.parseGitHubSearchResults(s);
+
+                //Log.d(TAG,"key is 2019-03-14 15:30:00  -  open value is : " + repos.get("2019-03-14 15:30:00").open);
+                //Log.d(TAG, "after parsing");
+                mRecyclerViewAdapter.updateSearchResults(repos);
+            } else {
+                mLoadingErrorMessageTV.setVisibility(View.VISIBLE);
+                mChatRV.setVisibility(View.INVISIBLE);
+            }
+            mLoadingIndicatorPB.setVisibility(View.INVISIBLE);
         }
     }
 }
