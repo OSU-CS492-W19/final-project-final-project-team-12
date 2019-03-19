@@ -39,6 +39,7 @@ public class MainActivity extends AppCompatActivity
 
     private ProgressBar mLoadingIndicatorPB;
     private TextView mLoadingErrorMessageTV;
+    private TextView mAPIErrorMessageTV;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +60,7 @@ public class MainActivity extends AppCompatActivity
 
         mLoadingIndicatorPB = findViewById(R.id.pb_loading_indicator);
         mLoadingErrorMessageTV = findViewById(R.id.tv_loading_error_message);
+        mAPIErrorMessageTV = findViewById(R.id.tv_API_error_message);
 
         Button mSendB = findViewById(R.id.b_send);
         //Create an onclicklistener to listen for when the button is pressed.
@@ -128,14 +130,14 @@ public class MainActivity extends AppCompatActivity
 
         @Override
         protected String doInBackground(String... urls) {
-            //Log.d(TAG,"in doInBackground");
+            Log.d(TAG,"in doInBackground");
             String url = urls[0];
             String results = null;
             try {
                 results = NetworkUtils.doHTTPGet(url);
                 //Log.d(TAG, "after GET " + results);
             } catch (IOException e) {
-                //Log.d(TAG, "error");
+                Log.d(TAG, "error");
                 e.printStackTrace();
             }
             return results;
@@ -144,15 +146,20 @@ public class MainActivity extends AppCompatActivity
 
         @Override
         protected void onPostExecute(String s) {
-            Log.d(TAG, "onPostExecute");
-            if (s != null) {
+            Log.d(TAG, "onPostExecute s is " + s.contains("Error Message"));
+            if (s != null && s.contains("Error Message") == false) {
                 mLoadingErrorMessageTV.setVisibility(View.INVISIBLE);
                 Map<String, AlphaVantageUtils.AlphaVantageRepo> repos = AlphaVantageUtils.parseGitHubSearchResults(s);
 
                 //Log.d(TAG,"key is 2019-03-14 15:30:00  -  open value is : " + repos.get("2019-03-14 15:30:00").open);
                 //Log.d(TAG, "after parsing");
                 mRecyclerViewAdapter.updateSearchResults(repos);
-            } else {
+            }
+            else if (s.contains("Error Message") == true) {
+                mChatRV.setVisibility(View.INVISIBLE);
+                mAPIErrorMessageTV.setVisibility(View.VISIBLE);
+            }
+            else {
                 mLoadingErrorMessageTV.setVisibility(View.VISIBLE);
                 mChatRV.setVisibility(View.INVISIBLE);
             }
