@@ -108,6 +108,8 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerViewHolder recyclerViewHolder, int i){
+        Log.d(TAG, "i is " + i);
+
         // There are 7 data points per day so every 7 data points, we have to go back a day.
         // This function is called for every data points so we have to keep track of days as a member of the Adapter class
         if (i%7 == 0) {

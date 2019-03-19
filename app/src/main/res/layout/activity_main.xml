@@ -10,14 +10,14 @@
         android:id="@+id/et_message"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Search a company symbol..."
+        android:hint="Enter a NASDAQ company symbol or hit the search icon to find some symbols"
         android:textSize="22sp" />
 
     <Button
         android:id="@+id/b_send"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:text="Search" />
+        android:text="Enter" />
 
 
     <FrameLayout

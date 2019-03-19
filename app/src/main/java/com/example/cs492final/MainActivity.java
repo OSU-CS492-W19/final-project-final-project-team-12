@@ -1,5 +1,6 @@
 package com.example.cs492final;
 
+import android.app.SearchManager;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
@@ -33,6 +34,7 @@ public class MainActivity extends AppCompatActivity
 
     private RecyclerView mChatRV;
     private EditText mMessageET;
+    private String mLatestSearch;
     private RecyclerViewAdapter mRecyclerViewAdapter;
 
     private ProgressBar mLoadingIndicatorPB;
@@ -45,6 +47,8 @@ public class MainActivity extends AppCompatActivity
 
         mChatRV = findViewById(R.id.rv_chat_list);
         mMessageET = findViewById(R.id.et_message);
+
+        mLatestSearch = "";
 
         mRecyclerViewAdapter = new RecyclerViewAdapter(this);
 
@@ -67,6 +71,7 @@ public class MainActivity extends AppCompatActivity
                 if (!TextUtils.isEmpty(messageText)) {
                     //Update to send to the slack server.
                     //mRecyclerViewAdapter.addChat(messageText);
+                    mLatestSearch = mMessageET.getText().toString();
                     mMessageET.setText("");
                     doAlphaVantageSearch(messageText); //Get information from the API
                 }
@@ -99,6 +104,12 @@ public class MainActivity extends AppCompatActivity
             case R.id.action_settings:
                 Intent intent = new Intent(this, SettingsActivity.class);
                 startActivity(intent);
+                return true;
+            case R.id.action_search:
+                Log.d(TAG, "query is " + mLatestSearch);
+                Intent searchIntent = new Intent(Intent.ACTION_WEB_SEARCH);
+                searchIntent.putExtra(SearchManager.QUERY, mLatestSearch + " NASDAQ company list symbols");
+                startActivity(searchIntent);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
