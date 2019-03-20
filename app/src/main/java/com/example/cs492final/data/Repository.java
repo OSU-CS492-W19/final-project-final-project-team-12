@@ -22,17 +22,17 @@ public class Repository implements StockSearchAsyncTask.Callback{
     public LiveData<Map<String, AlphaVantageUtils.AlphaVantageRepo>> getSearchResults(){
         return mSearchResults2;
     }
-    public void loadSearchResults(String query){
+    public void loadSearchResults(String query) {
         mSearchResults2.setValue(null);
         String url = AlphaVantageUtils.buildAlphaVantageURL(query);
-        Log.d(TAG, "executing search with this url"+url);
+        Log.d(TAG, "executing search with this url" + url);
         //execute search with url
         new StockSearchAsyncTask(url, this).execute();
 
     }
 
     @Override
-    public MutableLiveData<Map<String, AlphaVantageUtils.AlphaVantageRepo>> onSearchFinished(List<AlphaVantageUtils.AlphaVantageRepo> searchResults) {
-        return mSearchResults2;
+    public void onSearchFinished(Map<String, AlphaVantageUtils.AlphaVantageRepo> searchResults) {
+        mSearchResults2.setValue(searchResults);
     }
 }

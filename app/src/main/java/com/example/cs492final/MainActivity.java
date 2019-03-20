@@ -66,11 +66,12 @@ public class MainActivity extends AppCompatActivity
         mViewModel= ViewModelProviders.of(this).get(AlphaVantageViewModel.class);
         //Here's where things go wrong, I think -E
         //this version of the fn is expecting the mapping and crashes on the List
-        mViewModel.getSearchResults().observe(this, new Observer<List<AlphaVantageUtils.AlphaVantageRepo>>() {
+        mViewModel.getmSearchResultsMap().observe(this, new Observer<Map<String, AlphaVantageUtils.AlphaVantageRepo>>() {
             @Override
-            public void onChanged(@Nullable List<AlphaVantageUtils.AlphaVantageRepo> alphaVantageRepos) {
-                mRecyclerViewAdapter.updateSearchResults(alphaVantageRepos);
+            public void onChanged(@Nullable Map<String, AlphaVantageUtils.AlphaVantageRepo> stringAlphaVantageRepoMap) {
+                mRecyclerViewAdapter.updateSearchResults(stringAlphaVantageRepoMap);
             }
+
 //             This version was an experiment that kinda went nowhere
 //            @Override
 //            public void onChanged(@Nullable Map<String, AlphaVantageUtils.AlphaVantageRepo> alphaVantageRepos) {

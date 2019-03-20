@@ -13,6 +13,7 @@ import java.util.Map;
 public class StockSearchAsyncTask extends AsyncTask<Void, Void, String> {
     private String mUrl;
     private Callback mCallback;
+
     StockSearchAsyncTask(String url, Callback callback){
         mUrl=url;
         mCallback=callback;
@@ -30,7 +31,7 @@ public class StockSearchAsyncTask extends AsyncTask<Void, Void, String> {
         return results;
     }
     public interface Callback {
-        MutableLiveData<Map<String, AlphaVantageUtils.AlphaVantageRepo>> onSearchFinished(Map<String, AlphaVantageUtils.AlphaVantageRepo> searchResults);
+        void onSearchFinished(Map<String, AlphaVantageUtils.AlphaVantageRepo> searchResults);
     }
     @Override
     protected void onPostExecute(String s) {
