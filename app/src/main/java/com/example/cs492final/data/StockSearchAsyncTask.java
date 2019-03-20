@@ -37,7 +37,7 @@ public class StockSearchAsyncTask extends AsyncTask<Void, Void, String> {
     protected void onPostExecute(String s) {
         Map<String, AlphaVantageUtils.AlphaVantageRepo> searchResults = null;
         if (s != null) {
-            searchResults = (Map<String, AlphaVantageUtils.AlphaVantageRepo>) AlphaVantageUtils.parseGitHubSearchResults(s);
+            searchResults = AlphaVantageUtils.parseGitHubSearchResults(s);
         }
         mCallback.onSearchFinished(searchResults);
     }

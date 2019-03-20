@@ -20,6 +20,8 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.example.cs492final.data.Status;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -71,15 +73,27 @@ public class MainActivity extends AppCompatActivity
             public void onChanged(@Nullable Map<String, AlphaVantageUtils.AlphaVantageRepo> stringAlphaVantageRepoMap) {
                 mRecyclerViewAdapter.updateSearchResults(stringAlphaVantageRepoMap);
             }
-
-//             This version was an experiment that kinda went nowhere
-//            @Override
-//            public void onChanged(@Nullable Map<String, AlphaVantageUtils.AlphaVantageRepo> alphaVantageRepos) {
-//
-//                //updateUI with new search result data
-//                mRecyclerViewAdapter.updateSearchResults(alphaVantageRepos);
-//            }
         });
+
+        mViewModel.getLoadingStatus().observe(this, new Observer<Status>() {
+            @Override
+            public void onChanged(@Nullable Status status) {
+                if (status==Status.LOADING){
+                    mLoadingIndicatorPB.setVisibility(View.VISIBLE);
+                }
+                else if (status==Status.SUCCESS) {
+                    mLoadingIndicatorPB.setVisibility(View.INVISIBLE);
+                    mChatRV.setVisibility(View.VISIBLE);
+                    mLoadingErrorMessageTV.setVisibility(View.INVISIBLE);
+                }
+                else{
+                    mLoadingIndicatorPB.setVisibility(View.INVISIBLE);
+                    mChatRV.setVisibility(View.INVISIBLE);
+                    mLoadingErrorMessageTV.setVisibility(View.VISIBLE);
+                }
+            }
+        });
+
         //Create an onclicklistener to listen for when the button is pressed.
         mSendB.setOnClickListener(new View.OnClickListener() {
             @Override

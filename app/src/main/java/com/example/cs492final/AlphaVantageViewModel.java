@@ -4,6 +4,7 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.ViewModel;
 
 import com.example.cs492final.data.Repository;
+import com.example.cs492final.data.Status;
 import com.example.cs492final.data.StockSearchAsyncTask;
 
 import java.util.List;
@@ -13,10 +14,13 @@ public class AlphaVantageViewModel extends ViewModel {
     //private LiveData<List<AlphaVantageUtils.AlphaVantageRepo>> mSearchResults;
     private LiveData<Map<String, AlphaVantageUtils.AlphaVantageRepo>> mSearchResultsMap;
     private Repository mRepository;
+    private LiveData<Status> mLoadingStatus;
+
 
     public AlphaVantageViewModel(){
         mRepository=new Repository();
         mSearchResultsMap=mRepository.getSearchResults();
+        mLoadingStatus=mRepository.getLoadingStatus();
     }
     public void loadSearchResults(String query){
         mRepository.loadSearchResults(query);
@@ -27,5 +31,8 @@ public class AlphaVantageViewModel extends ViewModel {
 
     public LiveData<Map<String, AlphaVantageUtils.AlphaVantageRepo>> getmSearchResultsMap() {
         return mSearchResultsMap;
+    }
+    public LiveData<Status> getLoadingStatus(){
+        return mLoadingStatus;
     }
 }
