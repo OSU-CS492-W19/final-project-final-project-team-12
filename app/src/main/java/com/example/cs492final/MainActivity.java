@@ -1,5 +1,7 @@
 package com.example.cs492final;
 
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.ViewModelProviders;
 import android.app.SearchManager;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -16,6 +18,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import com.example.cs492final.data.StockItemDB;
 
 import java.io.IOException;
 import java.text.DateFormat;
@@ -24,6 +27,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -62,13 +66,19 @@ public class MainActivity extends AppCompatActivity
         mLoadingErrorMessageTV = findViewById(R.id.tv_loading_error_message);
         mAPIErrorMessageTV = findViewById(R.id.tv_API_error_message);
 
+        final StockItemViewModel mStockItemViewModel = ViewModelProviders.of(this).get(StockItemViewModel.class);
+        LiveData<List<StockItemDB>> allItems = mStockItemViewModel.getAllStockItems();
+
         Button mSendB = findViewById(R.id.b_send);
         //Create an onclicklistener to listen for when the button is pressed.
         mSendB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                StockItemDB mItem = new StockItemDB();
                 //Get the string from the EditText box.
                 String messageText = mMessageET.getText().toString();
+                mItem.company_symbol = mMessageET.getText().toString().toUpperCase();
+                mStockItemViewModel.insertStockItem(mItem);
                 //Check to see if there is anything in the message box.
                 if (!TextUtils.isEmpty(messageText)) {
                     //Update to send to the slack server.
