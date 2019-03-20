@@ -1,10 +1,13 @@
 package com.example.cs492final;
 
 import android.app.SearchManager;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.AsyncTask;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -18,13 +21,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Locale;
+import java.util.List;
 import java.util.Map;
 
 public class MainActivity extends AppCompatActivity
@@ -40,6 +37,8 @@ public class MainActivity extends AppCompatActivity
     private ProgressBar mLoadingIndicatorPB;
     private TextView mLoadingErrorMessageTV;
     private TextView mAPIErrorMessageTV;
+
+    private AlphaVantageViewModel mViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +62,23 @@ public class MainActivity extends AppCompatActivity
         mAPIErrorMessageTV = findViewById(R.id.tv_API_error_message);
 
         Button mSendB = findViewById(R.id.b_send);
+
+        mViewModel= ViewModelProviders.of(this).get(AlphaVantageViewModel.class);
+        //Here's where things go wrong, I think -E
+        //this version of the fn is expecting the mapping and crashes on the List
+        mViewModel.getSearchResults().observe(this, new Observer<List<AlphaVantageUtils.AlphaVantageRepo>>() {
+            @Override
+            public void onChanged(@Nullable List<AlphaVantageUtils.AlphaVantageRepo> alphaVantageRepos) {
+                mRecyclerViewAdapter.updateSearchResults(alphaVantageRepos);
+            }
+//             This version was an experiment that kinda went nowhere
+//            @Override
+//            public void onChanged(@Nullable Map<String, AlphaVantageUtils.AlphaVantageRepo> alphaVantageRepos) {
+//
+//                //updateUI with new search result data
+//                mRecyclerViewAdapter.updateSearchResults(alphaVantageRepos);
+//            }
+        });
         //Create an onclicklistener to listen for when the button is pressed.
         mSendB.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -82,9 +98,10 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void doAlphaVantageSearch(String query) {
-        String url = AlphaVantageUtils.buildAlphaVantageURL(query);
-        Log.d(TAG, "querying search URL: " + url);
-        new GitHubSearchTask().execute(url);   //uses Async - will add ViewModel at some point
+//        String url = AlphaVantageUtils.buildAlphaVantageURL(query);
+//        Log.d(TAG, "querying search URL: " + url);
+//        new GitHubSearchTask().execute(url);   //uses Async - will add ViewModel at some point
+        mViewModel.loadSearchResults(query);
     }
 
     @Override
@@ -107,7 +124,7 @@ public class MainActivity extends AppCompatActivity
                 Intent intent = new Intent(this, SettingsActivity.class);
                 startActivity(intent);
                 return true;
-            case R.id.action_search:
+            case R.id.action_search_test:
                 Log.d(TAG, "query is " + mLatestSearch);
                 Intent searchIntent = new Intent(Intent.ACTION_WEB_SEARCH);
                 searchIntent.putExtra(SearchManager.QUERY, mLatestSearch + " NASDAQ company list symbols");
