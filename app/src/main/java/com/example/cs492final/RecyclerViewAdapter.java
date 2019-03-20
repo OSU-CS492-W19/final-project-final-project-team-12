@@ -27,7 +27,6 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         notifyDataSetChanged();
     }
 
-
     public interface OnTempItemClickListener{
         void onTempItemClick(AlphaVantageUtils.AlphaVantageRepo repo); //Change string s to our data type.
     }

@@ -3,27 +3,25 @@ package com.example.cs492final;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.ViewModel;
 
-import com.example.cs492final.data.Repository;
+import com.example.cs492final.data.AlphaVantageRepository;
 import com.example.cs492final.data.Status;
-import com.example.cs492final.data.StockSearchAsyncTask;
 
-import java.util.List;
 import java.util.Map;
 
 public class AlphaVantageViewModel extends ViewModel {
     //private LiveData<List<AlphaVantageUtils.AlphaVantageRepo>> mSearchResults;
     private LiveData<Map<String, AlphaVantageUtils.AlphaVantageRepo>> mSearchResultsMap;
-    private Repository mRepository;
+    private AlphaVantageRepository mAlphaVantageRepository;
     private LiveData<Status> mLoadingStatus;
 
 
     public AlphaVantageViewModel(){
-        mRepository=new Repository();
-        mSearchResultsMap=mRepository.getSearchResults();
-        mLoadingStatus=mRepository.getLoadingStatus();
+        mAlphaVantageRepository =new AlphaVantageRepository();
+        mSearchResultsMap= mAlphaVantageRepository.getSearchResults();
+        mLoadingStatus= mAlphaVantageRepository.getLoadingStatus();
     }
     public void loadSearchResults(String query){
-        mRepository.loadSearchResults(query);
+        mAlphaVantageRepository.loadSearchResults(query);
     }
 //    public LiveData<List<AlphaVantageUtils.AlphaVantageRepo>> getSearchResults() {
 //        return mSearchResults;

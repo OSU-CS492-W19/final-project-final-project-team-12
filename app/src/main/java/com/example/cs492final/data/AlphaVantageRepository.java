@@ -11,14 +11,14 @@ import java.util.List;
 import java.util.Map;
 
 
-public class Repository implements StockSearchAsyncTask.Callback{
-    String TAG="Repository";
+public class AlphaVantageRepository implements StockSearchAsyncTask.Callback{
+    String TAG="AlphaVantageRepository";
     private MutableLiveData<Map<String, AlphaVantageUtils.AlphaVantageRepo>> mSearchResults2;
     private MutableLiveData<List<AlphaVantageUtils.AlphaVantageRepo>> mSearchResults;
     private MutableLiveData<Status> mLoadingStatus;
 
 
-    public Repository(){
+    public AlphaVantageRepository(){
         mSearchResults2=new MutableLiveData<>();
         mSearchResults2.setValue(null);
 

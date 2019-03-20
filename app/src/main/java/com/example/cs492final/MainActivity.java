@@ -66,8 +66,6 @@ public class MainActivity extends AppCompatActivity
         Button mSendB = findViewById(R.id.b_send);
 
         mViewModel= ViewModelProviders.of(this).get(AlphaVantageViewModel.class);
-        //Here's where things go wrong, I think -E
-        //this version of the fn is expecting the mapping and crashes on the List
         mViewModel.getmSearchResultsMap().observe(this, new Observer<Map<String, AlphaVantageUtils.AlphaVantageRepo>>() {
             @Override
             public void onChanged(@Nullable Map<String, AlphaVantageUtils.AlphaVantageRepo> stringAlphaVantageRepoMap) {
