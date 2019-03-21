@@ -45,11 +45,15 @@ public class AlphaVantageRepository implements StockSearchAsyncTask.Callback{
         if (searchResults != null && s.contains("Error Message")==false) {
             mLoadingStatus.setValue(Status.SUCCESS);
         }
+        else if (searchResults == null && s==null){
+            mLoadingStatus.setValue(Status.ERROR);
+        }
         else if(searchResults == null && s.contains("Error Message") == true){
 
             mLoadingStatus.setValue(Status.ERRORAPI);
         }
         else {
+            Log.d(TAG, "onSearchFinished: how the heck did you get down here?");
             mLoadingStatus.setValue(Status.ERROR);
         }
 

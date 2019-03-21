@@ -3,5 +3,5 @@
     <string name="pref_user_key">PrefUserKey</string>
     <string name="pref_user_title">Temporary</string>
     <string name="loading_error_message">Woops.  We couldn\'t load your search.  Check your internet connection and try again.</string>
-    <string name="API_error_message">Woops.  There was an error with what you entered. Check that you entered a valid NASDAQ company symbol. Hit the sesarch button up top to search NASDAQ symbols online. </string>
+    <string name="API_error_message">Woops.  There was an error with what you entered. Check that you entered a valid NASDAQ company symbol. Hit the search button up top to search NASDAQ symbols online. </string>
 </resources>

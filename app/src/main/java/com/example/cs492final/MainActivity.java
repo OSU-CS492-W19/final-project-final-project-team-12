@@ -100,17 +100,20 @@ public class MainActivity extends AppCompatActivity
                     mLoadingIndicatorPB.setVisibility(View.INVISIBLE);
                     mChatRV.setVisibility(View.VISIBLE);
                     mLoadingErrorMessageTV.setVisibility(View.INVISIBLE);
+                    mAPIErrorMessageTV.setVisibility(View.INVISIBLE);
                 }
                 else if (status==Status.ERRORAPI){
                     Log.d(TAG, "onChanged: ERRORAPI status");
                     mLoadingIndicatorPB.setVisibility(View.INVISIBLE);
                     mChatRV.setVisibility(View.INVISIBLE);
+                    mLoadingErrorMessageTV.setVisibility(View.INVISIBLE);
                     mAPIErrorMessageTV.setVisibility(View.VISIBLE);
                 }
                 else{
                     mLoadingIndicatorPB.setVisibility(View.INVISIBLE);
                     mChatRV.setVisibility(View.INVISIBLE);
                     mLoadingErrorMessageTV.setVisibility(View.VISIBLE);
+                    mAPIErrorMessageTV.setVisibility(View.INVISIBLE);
                 }
             }
         });
