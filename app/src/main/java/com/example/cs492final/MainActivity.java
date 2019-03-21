@@ -95,6 +95,9 @@ public class MainActivity extends AppCompatActivity
             public void onChanged(@Nullable Status status) {
                 if (status==Status.LOADING){
                     mLoadingIndicatorPB.setVisibility(View.VISIBLE);
+                    mChatRV.setVisibility(View.INVISIBLE);
+                    mLoadingErrorMessageTV.setVisibility(View.INVISIBLE);
+                    mAPIErrorMessageTV.setVisibility(View.INVISIBLE);
                 }
                 else if (status==Status.SUCCESS) {
                     mLoadingIndicatorPB.setVisibility(View.INVISIBLE);
@@ -140,9 +143,6 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void doAlphaVantageSearch(String query) {
-//        String url = AlphaVantageUtils.buildAlphaVantageURL(query);
-//        Log.d(TAG, "querying search URL: " + url);
-//        new GitHubSearchTask().execute(url);   //uses Async - will add ViewModel at some point
         mViewModel.loadSearchResults(query);
     }
 
@@ -174,55 +174,6 @@ public class MainActivity extends AppCompatActivity
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
-        }
-    }
-
-
-    class GitHubSearchTask extends AsyncTask<String, Void, String> {
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            //Log.d(TAG, "onPreExecute");
-            mLoadingIndicatorPB.setVisibility(View.VISIBLE);
-        }
-
-        @Override
-        protected String doInBackground(String... urls) {
-            Log.d(TAG,"in doInBackground");
-            String url = urls[0];
-            String results = null;
-            try {
-                results = NetworkUtils.doHTTPGet(url);
-                //Log.d(TAG, "after GET " + results);
-            } catch (IOException e) {
-                Log.d(TAG, "error");
-                e.printStackTrace();
-            }
-            return results;
-        }
-
-
-        @Override
-        protected void onPostExecute(String s) {
-            Log.d(TAG, "onPostExecute s is " + s.contains("Error Message"));
-            if (s != null && s.contains("Error Message") == false) {
-                mLoadingErrorMessageTV.setVisibility(View.INVISIBLE);
-                Map<String, AlphaVantageUtils.AlphaVantageRepo> repos = AlphaVantageUtils.parseGitHubSearchResults(s);
-
-                //Log.d(TAG,"key is 2019-03-14 15:30:00  -  open value is : " + repos.get("2019-03-14 15:30:00").open);
-                //Log.d(TAG, "after parsing");
-                mRecyclerViewAdapter.updateSearchResults(repos);
-            }
-            else if (s.contains("Error Message") == true) {
-                mChatRV.setVisibility(View.INVISIBLE);
-                mAPIErrorMessageTV.setVisibility(View.VISIBLE);
-            }
-            else {
-                mLoadingErrorMessageTV.setVisibility(View.VISIBLE);
-                mChatRV.setVisibility(View.INVISIBLE);
-            }
-            mLoadingIndicatorPB.setVisibility(View.INVISIBLE);
         }
     }
 }
