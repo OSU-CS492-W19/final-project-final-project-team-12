@@ -14,6 +14,7 @@
         android:textSize="22sp" />
 
     <Button
+        style="@style/b_style"
         android:id="@+id/b_send"
         android:layout_width="match_parent"
         android:layout_height="50dp"

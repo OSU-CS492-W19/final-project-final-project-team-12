@@ -1,7 +1,8 @@
 <resources>
-    <string name="app_name">CS492Final</string>
+    <string name="app_name">The Stock Spot</string>
     <string name="pref_user_key">PrefUserKey</string>
-    <string name="pref_user_title">Temporary</string>
+    <string name="pref_user_title">The Stock Spot is your one stop shop for all things stock. Whether you already have shares with a company or are looking into investing, we have everything you need to make smart, economical decisions. We provide you with updated stock information on the hour including daily highs and lows, daily volume and more. </string>
+    <string name="pref_instructions">To search for a company\'s stock information, enter their company symbol and hit "Search". Have a company you check on frequently? Tap the menu icon to view a list of previously searched companies for easy and convenient searching.</string>
     <string name="loading_error_message">Woops.  We couldn\'t load your search.  Check your internet connection and try again.</string>
     <string name="API_error_message">Woops.  There was an error with what you entered. Check that you entered a valid NASDAQ company symbol. Hit the search button up top to search NASDAQ symbols online. </string>
 </resources>

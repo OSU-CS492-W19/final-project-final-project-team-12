@@ -1,7 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
     <EditTextPreference
+        android:id="@+id/tv1"
+        android:key="@string/pref_user_key"
+        android:title="Welcome to the Stock Spot!"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        />
+    <EditTextPreference
+        android:id="@+id/tv2"
         android:key="@string/pref_user_key"
         android:title="@string/pref_user_title"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        />
+    <EditTextPreference
+        android:id="@+id/tv3"
+        android:key="@string/pref_user_key"
+        android:title="@string/pref_instructions"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
         />
 </PreferenceScreen>
