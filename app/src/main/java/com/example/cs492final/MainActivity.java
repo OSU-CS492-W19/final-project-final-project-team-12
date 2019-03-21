@@ -26,9 +26,7 @@ import com.example.cs492final.data.StockItemDB;
 import com.example.cs492final.data.Status;
 
 import java.io.IOException;
-//<<<<<<< HEAD
 import java.util.List;
-//=======
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
@@ -37,7 +35,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-//>>>>>>> master
 import java.util.Map;
 
 public class MainActivity extends AppCompatActivity
