@@ -2,6 +2,14 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <EditTextPreference
         android:key="@string/pref_user_key"
+        android:title="Welcome to the Stock Spot!"
+    />
+    <EditTextPreference
+        android:key="@string/pref_user_key"
         android:title="@string/pref_user_title"
+        />
+    <EditTextPreference
+        android:key="@string/pref_user_key"
+        android:title="@string/pref_instructions"
         />
 </PreferenceScreen>
