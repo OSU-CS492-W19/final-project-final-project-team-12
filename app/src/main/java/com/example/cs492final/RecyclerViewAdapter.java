@@ -94,7 +94,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         return key;
     }
 
-    public AlphaVantageUtils.AlphaVantageRepo returnEmptyRepo(){
+    public static AlphaVantageUtils.AlphaVantageRepo returnEmptyRepo(){
         AlphaVantageUtils.AlphaVantageRepo emptyRepo = new AlphaVantageUtils.AlphaVantageRepo();
         emptyRepo.open = "NA";
         emptyRepo.close = "NA";

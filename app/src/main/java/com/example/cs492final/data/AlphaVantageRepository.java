@@ -39,11 +39,17 @@ public class AlphaVantageRepository implements StockSearchAsyncTask.Callback{
     }
 
     @Override
-    public void onSearchFinished(Map<String, AlphaVantageUtils.AlphaVantageRepo> searchResults) {
+    public void onSearchFinished(Map<String, AlphaVantageUtils.AlphaVantageRepo> searchResults, String s) {
+        Log.d("repository", "onSearchFinished: "+searchResults + " s is " + s);
         mSearchResults2.setValue(searchResults);
-        if (searchResults != null) {
+        if (searchResults != null && s.contains("Error Message")==false) {
             mLoadingStatus.setValue(Status.SUCCESS);
-        } else {
+        }
+        else if(searchResults == null && s.contains("Error Message") == true){
+
+            mLoadingStatus.setValue(Status.ERRORAPI);
+        }
+        else {
             mLoadingStatus.setValue(Status.ERROR);
         }
 
