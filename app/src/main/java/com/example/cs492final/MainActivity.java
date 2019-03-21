@@ -1,5 +1,7 @@
 package com.example.cs492final;
 
+import android.support.v4.view.GravityCompat;
+import android.support.v7.app.ActionBar;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.ViewModelProviders;
 import android.app.SearchManager;
@@ -8,7 +10,10 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.NavigationView;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -21,6 +26,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.support.v7.widget.Toolbar;
+
+import com.example.cs492final.data.HistoryItem;
 import com.example.cs492final.data.StockItemDB;
 
 import com.example.cs492final.data.Status;
@@ -38,7 +46,7 @@ import java.util.Locale;
 import java.util.Map;
 
 public class MainActivity extends AppCompatActivity
-        implements RecyclerViewAdapter.OnTempItemClickListener {
+        implements RecyclerViewAdapter.OnTempItemClickListener, NavigationView.OnNavigationItemSelectedListener, HistoryAdapter.OnHistoryClickListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
@@ -46,12 +54,16 @@ public class MainActivity extends AppCompatActivity
     private EditText mMessageET;
     private String mLatestSearch;
     private RecyclerViewAdapter mRecyclerViewAdapter;
+    private DrawerLayout mDrawerLayout;
+    private HistoryAdapter mHistoryAdapter;
 
+    private RecyclerView mHistoryRV;
     private ProgressBar mLoadingIndicatorPB;
     private TextView mLoadingErrorMessageTV;
     private TextView mAPIErrorMessageTV;
 
     private AlphaVantageViewModel mViewModel;
+    private HistoryViewModel mHistoryViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +72,33 @@ public class MainActivity extends AppCompatActivity
 
         mChatRV = findViewById(R.id.rv_chat_list);
         mMessageET = findViewById(R.id.et_message);
+        mHistoryRV = findViewById(R.id.rv_history);
+
+        mDrawerLayout =findViewById(R.id.drawer_layout);
+        NavigationView navigationView = findViewById(R.id.nv_nav_drawer);
+        navigationView.setNavigationItemSelectedListener(this);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setHomeAsUpIndicator(R.drawable.ic_menu);
+
+        mHistoryAdapter = new HistoryAdapter(this);
+        mHistoryRV.setAdapter(mHistoryAdapter);
+        mHistoryRV.setLayoutManager(new LinearLayoutManager(this));
+        mHistoryRV.setHasFixedSize(true);
+
+        mHistoryViewModel = ViewModelProviders.of(this).get(HistoryViewModel.class);
+        LiveData<List<HistoryItem>> allHistory = mHistoryViewModel.getAllHistory();
+
+        allHistory.observe(this, new Observer<List<HistoryItem>>() {
+            @Override
+            public void onChanged(@Nullable List<HistoryItem> historyItems) {
+                //Update our recycler view
+                mHistoryAdapter.updateSearchResults(historyItems);
+            }
+        });
 
         mLatestSearch = "";
 
@@ -140,6 +179,21 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void doAlphaVantageSearch(String query) {
+        //Add to our database
+        mHistoryViewModel.getSingleHistory(mLatestSearch).observe(this, new Observer<HistoryItem>() {
+            @Override
+            public void onChanged(@Nullable HistoryItem historyItem) {
+                if(historyItem != null){
+                    //Do nothing, already in list.
+                }
+                else{
+                    //Add to list.
+                    HistoryItem temp = new HistoryItem();
+                    temp.StockName = mLatestSearch;
+                    mHistoryViewModel.insertHistory(temp);
+                }
+            }
+        });
         mViewModel.loadSearchResults(query);
     }
 
@@ -169,8 +223,27 @@ public class MainActivity extends AppCompatActivity
                 searchIntent.putExtra(SearchManager.QUERY, mLatestSearch + " NASDAQ company list symbols");
                 startActivity(searchIntent);
                 return true;
+            case android.R.id.home:
+                mDrawerLayout.openDrawer(GravityCompat.START);
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+        mDrawerLayout.closeDrawers();
+        switch (menuItem.getItemId()){
+            default:
+                return false;
+        }
+    }
+
+    @Override
+    public void onHistoryClick(HistoryItem info) {
+        //Activity item clicked, update.
+        doAlphaVantageSearch(info.StockName);
+        mDrawerLayout.closeDrawers();
     }
 }
