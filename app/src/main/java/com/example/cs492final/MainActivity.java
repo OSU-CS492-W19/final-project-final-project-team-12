@@ -3,10 +3,13 @@ package com.example.cs492final;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.ViewModelProviders;
 import android.app.SearchManager;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.AsyncTask;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -20,7 +23,12 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import com.example.cs492final.data.StockItemDB;
 
+import com.example.cs492final.data.Status;
+
 import java.io.IOException;
+//<<<<<<< HEAD
+import java.util.List;
+//=======
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
@@ -29,6 +37,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+//>>>>>>> master
 import java.util.Map;
 
 public class MainActivity extends AppCompatActivity
@@ -44,6 +53,8 @@ public class MainActivity extends AppCompatActivity
     private ProgressBar mLoadingIndicatorPB;
     private TextView mLoadingErrorMessageTV;
     private TextView mAPIErrorMessageTV;
+
+    private AlphaVantageViewModel mViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,6 +81,46 @@ public class MainActivity extends AppCompatActivity
         LiveData<List<StockItemDB>> allItems = mStockItemViewModel.getAllStockItems();
 
         Button mSendB = findViewById(R.id.b_send);
+
+        mViewModel= ViewModelProviders.of(this).get(AlphaVantageViewModel.class);
+        mViewModel.getmSearchResultsMap().observe(this, new Observer<Map<String, AlphaVantageUtils.AlphaVantageRepo>>() {
+            @Override
+            public void onChanged(@Nullable Map<String, AlphaVantageUtils.AlphaVantageRepo> stringAlphaVantageRepoMap) {
+                mRecyclerViewAdapter.updateSearchResults(stringAlphaVantageRepoMap);
+            }
+        });
+
+        mViewModel.getLoadingStatus().observe(this, new Observer<Status>() {
+            @Override
+            public void onChanged(@Nullable Status status) {
+                if (status==Status.LOADING){
+                    mLoadingIndicatorPB.setVisibility(View.VISIBLE);
+                    mChatRV.setVisibility(View.INVISIBLE);
+                    mLoadingErrorMessageTV.setVisibility(View.INVISIBLE);
+                    mAPIErrorMessageTV.setVisibility(View.INVISIBLE);
+                }
+                else if (status==Status.SUCCESS) {
+                    mLoadingIndicatorPB.setVisibility(View.INVISIBLE);
+                    mChatRV.setVisibility(View.VISIBLE);
+                    mLoadingErrorMessageTV.setVisibility(View.INVISIBLE);
+                    mAPIErrorMessageTV.setVisibility(View.INVISIBLE);
+                }
+                else if (status==Status.ERRORAPI){
+                    Log.d(TAG, "onChanged: ERRORAPI status");
+                    mLoadingIndicatorPB.setVisibility(View.INVISIBLE);
+                    mChatRV.setVisibility(View.INVISIBLE);
+                    mLoadingErrorMessageTV.setVisibility(View.INVISIBLE);
+                    mAPIErrorMessageTV.setVisibility(View.VISIBLE);
+                }
+                else{
+                    mLoadingIndicatorPB.setVisibility(View.INVISIBLE);
+                    mChatRV.setVisibility(View.INVISIBLE);
+                    mLoadingErrorMessageTV.setVisibility(View.VISIBLE);
+                    mAPIErrorMessageTV.setVisibility(View.INVISIBLE);
+                }
+            }
+        });
+
         //Create an onclicklistener to listen for when the button is pressed.
         mSendB.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -92,9 +143,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void doAlphaVantageSearch(String query) {
-        String url = AlphaVantageUtils.buildAlphaVantageURL(query);
-        Log.d(TAG, "querying search URL: " + url);
-        new GitHubSearchTask().execute(url);   //uses Async - will add ViewModel at some point
+        mViewModel.loadSearchResults(query);
     }
 
     @Override
@@ -117,7 +166,7 @@ public class MainActivity extends AppCompatActivity
                 Intent intent = new Intent(this, SettingsActivity.class);
                 startActivity(intent);
                 return true;
-            case R.id.action_search:
+            case R.id.action_search_test:
                 Log.d(TAG, "query is " + mLatestSearch);
                 Intent searchIntent = new Intent(Intent.ACTION_WEB_SEARCH);
                 searchIntent.putExtra(SearchManager.QUERY, mLatestSearch + " NASDAQ company list symbols");
@@ -125,55 +174,6 @@ public class MainActivity extends AppCompatActivity
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
-        }
-    }
-
-
-    class GitHubSearchTask extends AsyncTask<String, Void, String> {
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            //Log.d(TAG, "onPreExecute");
-            mLoadingIndicatorPB.setVisibility(View.VISIBLE);
-        }
-
-        @Override
-        protected String doInBackground(String... urls) {
-            Log.d(TAG,"in doInBackground");
-            String url = urls[0];
-            String results = null;
-            try {
-                results = NetworkUtils.doHTTPGet(url);
-                //Log.d(TAG, "after GET " + results);
-            } catch (IOException e) {
-                Log.d(TAG, "error");
-                e.printStackTrace();
-            }
-            return results;
-        }
-
-
-        @Override
-        protected void onPostExecute(String s) {
-            Log.d(TAG, "onPostExecute s is " + s.contains("Error Message"));
-            if (s != null && s.contains("Error Message") == false) {
-                mLoadingErrorMessageTV.setVisibility(View.INVISIBLE);
-                Map<String, AlphaVantageUtils.AlphaVantageRepo> repos = AlphaVantageUtils.parseGitHubSearchResults(s);
-
-                //Log.d(TAG,"key is 2019-03-14 15:30:00  -  open value is : " + repos.get("2019-03-14 15:30:00").open);
-                //Log.d(TAG, "after parsing");
-                mRecyclerViewAdapter.updateSearchResults(repos);
-            }
-            else if (s.contains("Error Message") == true) {
-                mChatRV.setVisibility(View.INVISIBLE);
-                mAPIErrorMessageTV.setVisibility(View.VISIBLE);
-            }
-            else {
-                mLoadingErrorMessageTV.setVisibility(View.VISIBLE);
-                mChatRV.setVisibility(View.INVISIBLE);
-            }
-            mLoadingIndicatorPB.setVisibility(View.INVISIBLE);
         }
     }
 }

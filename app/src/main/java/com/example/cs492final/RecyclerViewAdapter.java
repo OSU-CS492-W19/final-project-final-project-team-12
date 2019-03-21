@@ -27,7 +27,6 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         notifyDataSetChanged();
     }
 
-
     public interface OnTempItemClickListener{
         void onTempItemClick(AlphaVantageUtils.AlphaVantageRepo repo); //Change string s to our data type.
     }
@@ -95,7 +94,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         return key;
     }
 
-    public AlphaVantageUtils.AlphaVantageRepo returnEmptyRepo(){
+    public static AlphaVantageUtils.AlphaVantageRepo returnEmptyRepo(){
         AlphaVantageUtils.AlphaVantageRepo emptyRepo = new AlphaVantageUtils.AlphaVantageRepo();
         emptyRepo.open = "NA";
         emptyRepo.close = "NA";
